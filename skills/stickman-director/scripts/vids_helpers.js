@@ -24,7 +24,7 @@ window.trc = async i => {
   fire(e, e.getBoundingClientRect()); await sleep(600); return e.getAttribute('aria-label');
 };
 
-// Coordinates of the i-th "Mute" checkbox in Sound > All tracks.
+// Coordinates of the i-th "Mute" checkbox (prefer volume 0 via vf(i): Mute is ignored by export).
 // Click them for real: checkbox.click() from JS looks fine and then reverts.
 window.mk = async i => {
   const m = [...document.querySelectorAll('div,span,label')]
@@ -61,4 +61,12 @@ window.grabFileInput = () => {
   const b = [...document.querySelectorAll('[role=button],button,div')]
     .find(e => e.textContent.trim() === 'Browse computer' || e.getAttribute('aria-label') === 'Browse computer');
   b && b.click(); return !!b;
+};
+
+// Coordinates of the i-th clip volume field in Sound > All tracks. Triple-click, type 0, Enter.
+window.vf = async i => {
+  const ins = [...document.querySelectorAll('input')].filter(x => x.type !== 'range' && x.type !== 'checkbox'
+    && x.getBoundingClientRect().left > 800 && /^\d+$/.test(x.value));
+  const m = ins[i]; m.scrollIntoView({ block: 'center' }); await sleep(300);
+  const r = m.getBoundingClientRect(); return [ins.length, Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), m.value];
 };

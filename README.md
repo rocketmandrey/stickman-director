@@ -90,7 +90,8 @@ More topics that work well: *How did humans get fire? · Who invented the wheel?
 - 🧑‍🦲 **Skin-coloured heads.** Omni drifts to skin tone → every prompt ends with *"The head is pure paper-white"*.
 - 🗣️ **"The voice garbles at the cuts."** Dissolves eat 0.5 s of the next scene, so lines overlap.
   Fix: clip speed so each scene ≥ its voice + 0.8 s. Correct when all voice clips sit on **one row**.
-- 🔇 **Mutes that un-mute.** Clicking the Mute checkbox from JS looks checked and reverts. Real clicks only, re-verified before export.
+- 🔇 **Mute that doesn't mute.** The Mute checkbox looks on, but the export keeps the clip sound under the voice. Set clip volume to 0 instead.
+- 📦 **Download fails** with "Something went wrong" → File → Export to Drive works.
 - 🖼️ **Title card is an image, not a text box** - and the title is read aloud. That's the hook.
 - 💬 **"Add styled captions" tips** add captions if you click near them. Close with ✕.
 - ✅ **Trust the file, not the UI:** `check_audio.sh` demands a silence gap after every line.

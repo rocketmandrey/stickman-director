@@ -81,14 +81,16 @@ Two causes, fix both, every time:
    Read voice durations with `voices()`. Done right, **all Knox clips sit on one row** in the timeline
    with a small gap between each.
 2. **Clip audio still on.** Omni clips come with their own sound. Sound → All tracks → expand each
-   *Video* row → **Mute** - with **real clicks** (`mk(i)` gives coordinates). JS `checkbox.click()`
-   looks checked and silently reverts. Re-read all checkboxes before export. Never mute Knox rows.
+   *Video* row → set the **volume field to 0** with real clicks (triple-click, type `0`, Enter).
+   Don't rely on the Mute checkbox: it shows checked in the editor but the export still carries the
+   clip sound (−35 dB bed under every pause). Re-read all volume fields before export. Never touch Knox rows.
 
 ## 7. Finish
 
 - Transitions: `trc(i)` → **Dissolve**, duration **0.5 s**, between every pair of scenes.
 - Watch out for "Add styled captions" tips - close them with ✕, don't click into them.
-- Export: File → Download → **MP4** (≈ 2–4 min). If it errors, stop and tell the user (rule above).
+- Export: File → Download → **MP4**. It often fails with "Something went wrong" - then
+  **File → Export to Drive** (works, ≈ 1 min) and download the file from Drive.
 - Verify: `scripts/check_audio.sh video.mp4 9` must PASS (a silence gap after every line),
   and look at 1 frame per scene.
 
