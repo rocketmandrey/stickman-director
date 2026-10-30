@@ -1,0 +1,7 @@
+{
+  "name": "stickman-director",
+  "version": "1.0.0",
+  "description": "One topic in, one finished stick-figure explainer MP4 out - Google Vids driven end to end by Claude.",
+  "author": { "name": "rocketmandrey" },
+  "license": "MIT"
+}

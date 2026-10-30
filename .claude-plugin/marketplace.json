@@ -1,0 +1,7 @@
+{
+  "name": "stickman-director",
+  "owner": { "name": "rocketmandrey" },
+  "plugins": [
+    { "name": "stickman-director", "source": "./", "description": "Stick-figure explainer videos in Google Vids, end to end." }
+  ]
+}
