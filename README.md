@@ -26,7 +26,8 @@ You type a topic. Claude, alone, in your own browser:
 | 3 | **Clips** | Google Vids AI video (Omni, 5 s, 16:9), generated one at a time, each checked, bad ones remade once |
 | 4 | **Title card** | a thumbnail-grade cover from Codex, reviewed by Codex, used as scene 1 **and** spoken aloud as the hook |
 | 5 | **Voice** | calm male storyteller (Knox), timed so no line runs into the next |
-| 6 | **Finish** | clips muted, soft 0.5 s dissolves, MP4 export, automatic audio check |
+| 6 | **Finish** | clips at volume 0, soft 0.3 s dissolves, export to Drive, audio check + frame sheet |
+| ∞ | **Series** | Codex deep research writes N episodes as JSON (facts + sources) → same pipeline per episode |
 
 ```mermaid
 flowchart LR
@@ -74,13 +75,15 @@ Stickman Director: Why were ancient humans so scared of the dark?
 Claude shows the story, then works without asking. At the end you get the MP4, the cover,
 the Vids project link and a one-line summary per scene.
 
+**Series:** `Stickman Director series: How Empires Were Born` - see [SERIES.md](skills/stickman-director/SERIES.md).
+
 More topics that work well: *How did humans get fire? · Who invented the wheel? · Why do we need to drink water? · Why do guys usually make the first move?*
 
 ## Limits
 
 | | |
 |---|---|
-| Generations | Vids shows **no counter**. Most plans ≈ **50 AI clips / month** ([Google help](https://support.google.com/docs/answer/16143507)); one video ≈ 8–10 |
+| Generations | Vids shows **no counter**. Help page says ≈ 50 / month ([Google help](https://support.google.com/docs/answer/16143507)); **measured: ≈ 100 / month** on Google AI Pro (clip #102 → *"You've hit your limits"*), reset 1st 00:00 PT. One video ≈ 8–10 → ~11 videos / month |
 | Clip length | 5 s per scene (slider defaults to 10 s - the skill sets 5) |
 | Time | ≈ 45 s per clip, ~20–30 min per finished video |
 | Safety | never types passwords; any sign-in / payment / error / "unusual activity" screen → stops and asks you |
@@ -89,9 +92,10 @@ More topics that work well: *How did humans get fire? · Who invented the wheel?
 
 - 🧑‍🦲 **Skin-coloured heads.** Omni drifts to skin tone → every prompt ends with *"The head is pure paper-white"*.
 - 🗣️ **"The voice garbles at the cuts."** Dissolves eat 0.5 s of the next scene, so lines overlap.
-  Fix: clip speed so each scene ≥ its voice + 0.8 s. Correct when all voice clips sit on **one row**.
+  Fix: dissolve 0.3 s (default 1.5!) + clip speed `floor(5/(voice+1)·20)/20`. Correct when all voice clips sit on **one row**.
+- 🖼️ **Hook eats line 2.** The cover scene is exactly as long as the hook - drag its edge ~+85 px.
 - 🔇 **Mute that doesn't mute.** The Mute checkbox looks on, but the export keeps the clip sound under the voice. Set clip volume to 0 instead.
-- 📦 **Download fails** with "Something went wrong" → File → Export to Drive works.
+- 📦 **Download fails** with "Something went wrong" → File → Export to Drive works (check the toast - the click is sometimes ignored).
 - 🖼️ **Title card is an image, not a text box** - and the title is read aloud. That's the hook.
 - 💬 **"Add styled captions" tips** add captions if you click near them. Close with ✕.
 - ✅ **Trust the file, not the UI:** `check_audio.sh` demands a silence gap after every line.
@@ -101,9 +105,11 @@ More topics that work well: *How did humans get fire? · Who invented the wheel?
 ```
 skills/stickman-director/
 ├── SKILL.md              # the full playbook Claude follows
+├── SERIES.md             # series mode: research prompt, locked style line, per-episode loop
+├── examples/ep02_rome.json  # one researched episode: narration, prompts, facts + sources
 └── scripts/
     ├── cover_gen.sh      # Codex title card: generate → review → regenerate until ≥ 8
-    ├── vids_helpers.js   # select scenes, transitions, mute coords, voice timings, file upload
+    ├── vids_helpers.js   # scenes, transitions, voice timings, speeds (vdur), join check (vgap), upload
     └── check_audio.sh    # ffmpeg silencedetect: a gap after every narration line
 ```
 

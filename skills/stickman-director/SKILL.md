@@ -44,9 +44,10 @@ Open `https://docs.google.com/videos/create` → new blank video → **AI video*
 - Check every result before inserting (`pv(t)` in `scripts/vids_helpers.js`, then zoom the frame):
   white head, same outfit, the action actually happens, no text. Remake a bad clip **at most once**.
 - Insert → `+` new scene → next prompt.
-- Before each clip, tell the remaining generations. Vids shows **no counter**; count yourself
-  against the plan limit (help page "Use AI to generate video clips in Google Vids": most plans
-  ≈ 50 generations / month, check the user's plan).
+- Before each clip, tell the remaining generations. Vids shows **no counter**; count yourself.
+  Google's help page says ≈ 50 / month, but measured in practice (Google AI Pro, Oct 2026) the cap was
+  **≈ 100 clips / month**: clip #102 got *"You've hit your limits for generating videos in Vids"*.
+  It resets on the 1st, 00:00 Pacific. After that message, stop generating - don't retry before the reset.
 
 ## 4. Title card = Codex image + spoken title
 
@@ -77,22 +78,34 @@ Two causes, fix both, every time:
 
 1. **Overlapping voices.** Inserting voiceover stretches scenes, and each 0.5 s dissolve eats into the
    next scene, so line N runs into line N+1. Fix per clip: select clip → **Playback options → Speed**
-   so that `scene length ≥ voice length + 0.8 s` (speed ≈ 5 / (voice + 0.8), e.g. 0.65–0.8).
-   Read voice durations with `voices()`. Done right, **all Knox clips sit on one row** in the timeline
+   so that `scene length ≥ voice length + 1.0 s`: **speed = floor(5 / (voice + 1.0) · 20) / 20**
+   (always round *down*; rounding up gives zero gaps). `vdur().spd` computes it for every scene.
+   Read voice durations with `voices()` / `vdur()`. Done right, **all Knox clips sit on one row** in the timeline
    with a small gap between each.
 2. **Clip audio still on.** Omni clips come with their own sound. Sound → All tracks → expand each
    *Video* row → set the **volume field to 0** with real clicks (triple-click, type `0`, Enter).
+   Faster: select the clip → Sound → **This track** volume field → 0, clip by clip.
    Don't rely on the Mute checkbox: it shows checked in the editor but the export still carries the
    clip sound (−35 dB bed under every pause). Re-read all volume fields before export. Never touch Knox rows.
 
 ## 7. Finish
 
-- Transitions: `trc(i)` → **Dissolve**, duration **0.5 s**, between every pair of scenes.
+- Transitions: `trc(i)` → **Dissolve**, set duration to **0.3 s** (the default is 1.5 s and swallows the joins),
+  between every pair of scenes. Moving the cover to the front shifts them - add the 1→2 dissolve last.
+- Cover scene too short: it is exactly the hook's length, so the hook runs into line 2. Check `vgap()`
+  (every gap > 0, one row) - if not, drag the cover scene's right edge in the timeline ≈ +85 px.
 - Watch out for "Add styled captions" tips - close them with ✕, don't click into them.
-- Export: File → Download → **MP4**. It often fails with "Something went wrong" - then
-  **File → Export to Drive** (works, ≈ 1 min) and download the file from Drive.
+- Export: **File → Export to Drive** (≈ 1–2 min; File → Download → MP4 often fails with "Something went wrong").
+  The menu item sometimes ignores the click - confirm the *"Exporting to Drive"* toast appeared.
+  Download: `https://drive.usercontent.google.com/download?id=<FILE_ID>&export=download`.
 - Verify: `scripts/check_audio.sh video.mp4 9` must PASS (a silence gap after every line),
-  and look at 1 frame per scene.
+  and look at a frame sheet yourself (`ffmpeg -i v.mp4 -vf fps=1/3,scale=384:-1,tile=5x4 sheet.png`):
+  one head / two arms / two legs, white heads, no text, no style drift (realistic faces in close-ups).
+
+## Series mode
+
+Many videos on one theme (e.g. "How Empires Were Born") → see **SERIES.md**: Codex deep research writes
+one JSON per episode, then each episode runs through steps 3–7 unchanged.
 
 ## 8. Report
 

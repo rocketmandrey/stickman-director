@@ -70,3 +70,29 @@ window.vf = async i => {
   const m = ins[i]; m.scrollIntoView({ block: 'center' }); await sleep(300);
   const r = m.getBoundingClientRect(); return [ins.length, Math.round(r.left + r.width / 2), Math.round(r.top + r.height / 2), m.value];
 };
+
+// Join check: gaps (px) between consecutive Knox clips, their timeline rows, scene rects.
+// Healthy = every gap > 0 and rows has ONE value.
+window.vgap = () => {
+  const v = [...document.querySelectorAll('[aria-label*="Knox starting"]')].map(e => {
+    const m = e.getAttribute('aria-label').match(/scene (\d+) at/); const r = e.getBoundingClientRect();
+    return [+m[1], Math.round(r.left), Math.round(r.right), Math.round(r.top)];
+  }).sort((a, b) => a[0] - b[0]);
+  const s = [...document.querySelectorAll('rect[aria-label^="Scene "]')].map(e => {
+    const r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.right), Math.round(r.top)];
+  });
+  return { gaps: v.slice(1).map((x, i) => x[1] - v[i][2]), rows: [...new Set(v.map(x => x[3]))], v, s };
+};
+
+// Voice length per scene (s) and the clip speed to set: floor(5 / (voice + 1.0) * 20) / 20.
+window.vdur = () => {
+  const v = [...document.querySelectorAll('[aria-label*="Knox starting"]')].map(e => {
+    const m = e.getAttribute('aria-label').match(/scene (\d+) at/);
+    return { s: +m[1], w: e.getBoundingClientRect().width };
+  }).sort((a, b) => a.s - b.s);
+  const sc = [...document.querySelectorAll('rect[aria-label^="Scene "]')].map(e => e.getBoundingClientRect());
+  const tot = +document.body.innerText.match(/\/\s*(\d\d):(\d\d\.\d)/).slice(1).reduce((m, s) => m * 60 + +s, 0);
+  const pps = (sc[sc.length - 1].right - sc[0].left) / tot;
+  return { pps: +pps.toFixed(1), voice: v.map(o => +(o.w / pps).toFixed(2)),
+           spd: v.map(o => Math.min(1, Math.floor(5 / (o.w / pps + 1.0) * 20) / 20)) };
+};
